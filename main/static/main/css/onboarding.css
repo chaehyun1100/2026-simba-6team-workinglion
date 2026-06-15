@@ -4,10 +4,14 @@
     box-sizing: border-box;
 }
 .container {
-    width: 430px;
-    height: 932px;
-
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     background: linear-gradient(180deg, var(--y0, #FFF7D1) 0%, #FFF 236.43%);
+    width: 100%;
+    min-height: 100dvh;
 }
 .bird {
     width: 271px;
@@ -20,7 +24,7 @@
     text-edge: cap;
     font-feature-settings: 'dlig' on;
     font-family: "Darker Grotesque";
-    font-size: 15px;
+    font-size: 17px; /* 글씨 크기 조정 15px->17px*/
     font-style: normal;
     font-weight: 400;
     line-height: 120%; /* 18px */
@@ -28,7 +32,7 @@
 }
 .title {
     width: 320px;
-
+    height: 39px;
     color: var(--b3, #7DABE1);
     text-align: center;
     leading-trim: both;
@@ -39,6 +43,28 @@
     font-size: 69.264px;
     font-style: normal;
     font-weight: 900;
-    line-height: 120%; /* 83.117px */
+    line-height: 120%;
     letter-spacing: -2.078px;
+}
+
+.left-wing {
+    transform-box: fill-box; 
+    transform-origin: right center; 
+    animation: flap-left 0.3s infinite alternate ease-in-out;
+}
+
+.right-wing {
+    transform-box: fill-box;
+    transform-origin: left center; 
+    animation: flap-right 0.3s infinite alternate ease-in-out;
+}
+
+@keyframes flap-left {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-30deg); }
+}
+
+@keyframes flap-right {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(30deg); }
 }

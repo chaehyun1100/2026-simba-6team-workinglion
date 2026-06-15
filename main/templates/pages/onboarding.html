@@ -9,9 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <img class="bird" src="{% static 'main/img/bird.png' %}" alt="캐릭터">
+        <div class="bird">
+            {% include 'pages/_bird_svg.html' %}
+        </div>
         <p class="subtitle">의지를 모아 습관을 완주하는 곳</p>
         <p class="title">HABIT-POT</p>
     </div>
+
+    <script>
+    setTimeout(function() {
+        window.location.href = "{% url 'signup_login' %}"; 
+    }, 1000); 
+    </script>
 </body>
 </html>
