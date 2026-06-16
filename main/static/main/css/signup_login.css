@@ -53,6 +53,7 @@ margin: 38px 0;
     gap: 21.039px;
 }
 .box {
+    text-decoration: none;
     display: flex;
     width: 324.002px;
     height: 60.592px;
