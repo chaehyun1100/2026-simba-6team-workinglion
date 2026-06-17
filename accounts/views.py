@@ -54,7 +54,7 @@ def signup_nickname(request):
             del request.session['temp_email']
             del request.session['temp_password']
         
-        return redirect('main:onboarding')
+        return redirect('main:dashboard')
 
     return render(request, 'accounts/signup_nickname.html')
     
@@ -67,7 +67,7 @@ def login(request):
         user = auth.authenticate(request, username=email_data, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect('main:onboarding')
+            return redirect('main:dashboard')
         else:
             return render(request, 'accounts/login.html')
             
