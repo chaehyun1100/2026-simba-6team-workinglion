@@ -15,8 +15,6 @@
 
     width: 100%;
     min-height: 100dvh;
-
-background: linear-gradient(180deg, var(--y0, #FFF7D1) 0%, #FFF 236.43%);
 }
 .header {
     width: 394.999px;
@@ -101,6 +99,8 @@ label{
     padding-left: 12px;
 }
 .button{
+    text-decoration: none;
+    border: none;
     display: flex;
     width: 385px;
     height: 72px;
