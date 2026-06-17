@@ -99,8 +99,9 @@ background: var(--y0, #FFF7D1);
 width: 45px;
 height: 45px;
 padding: 6px;
-/* align-items: flex-start;
-gap: 10px; */
+flex-direction: column;
+justify-content: center;
+align-items: center;
 
 border-radius: 59.211px;
 border: 1px solid #7A6229;
