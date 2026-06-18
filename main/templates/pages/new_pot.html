@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main/css/new_pot.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <div class="main">
+        <div class="frame-1">
+            <a class="back-btn">
+                <p class="back-dir">←</p>
+            </a>
+            <p class="title">팟 만들기</p>
+        </div>
+
+        <form class="frame-2" action="{% url 'accounts:signup' %}" method="post">
+            {% csrf_token %}
+            <div class="name-container">
+                <p class="section-title">팟 이름</p> 
+                <div class="input-container">
+                    <input type="search" placeholder="지키고 싶은 루틴을 작성해주세요!" class="routine-input" name="pot-name"/>
+                </div>
+            </div>
+
+            <div class="time-container">
+                <div class="section-group">
+                    <p class="section-title">챌린지 기간</p>
+                    <div class="term-btn-container">
+                        <input type="radio" id="term-7" name="challenge_term" value="7">
+                        <label for="term-7" class="term-btn">7일</label>
+
+                        <input type="radio" id="term-14" name="challenge_term" value="14">
+                        <label for="term-14" class="term-btn">14일</label>
+
+                        <input type="radio" id="term-30" name="challenge_term" value="30">
+                        <label for="term-30" class="term-btn">30일</label>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <p class="section-title">인증 요일</p>
+                    <div class="day-btn-container">
+                        <input type="checkbox" id="day-mon" name="auth_days" value="mon">
+                        <label for="day-mon" class="day-btn">월</label>
+
+                        <input type="checkbox" id="day-tue" name="auth_days" value="tue">
+                        <label for="day-tue" class="day-btn">화</label>
+
+                        <input type="checkbox" id="day-wed" name="auth_days" value="wed">
+                        <label for="day-wed" class="day-btn">수</label>
+
+                        <input type="checkbox" id="day-thu" name="auth_days" value="thu">
+                        <label for="day-thu" class="day-btn">목</label>
+
+                        <input type="checkbox" id="day-fri" name="auth_days" value="fri">
+                        <label for="day-fri" class="day-btn">금</label>
+
+                        <input type="checkbox" id="day-sat" name="auth_days" value="sat">
+                        <label for="day-sat" class="day-btn">토</label>
+
+                        <input type="checkbox" id="day-sun" name="auth_days" value="sun">
+                        <label for="day-sun" class="day-btn">일</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="people-point-container">
+                <div class="people-container">
+                    <p class="section-title">팟 인원</p>
+                    <select id="people" name="people" required>
+                        <option value="" disabled selected hidden>팟에 참가할 인원을 선택해주세요!</option>
+                        <option value="2">2명</option>
+                        <option value="3">3명</option>
+                        <option value="4">4명</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
+                    </select>
+                    
+                </div>
+
+                <div class="point-container">
+                    <div class="point-title">
+                        <p class="section-title">입장 포인트 (인당)</p>
+                        <p class="current-point">현재 보유 포인트: nnpt</p> 
+                    </div>
+                    
+                    <div class="point-rect">
+                        <div class="enter-point">
+                            <p id="display-days">n일 챌린지 입장료</p> 
+                            <p id="display-entry-fee">0pt</p>
+                        </div>
+
+                        <div class="total-point">
+                            <p>보너스 포인트 포함 총 상금</p>
+                            <p id="display-total-prize">최대 0pt</p>
+                        </div>
+                    </div>    
+                </div>
+                
+               <button type="submit" id="submit-btn" disabled>팟 생성하기</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+<script>
+//1. 변수 셋팅
+let selectedDays = 0;   // 선택한 챌린지 기간
+let selectedPeople = 0; // 선택한 인원 수
+
+// 2. HTML 요소
+const routineInput = document.querySelector('.routine-input'); 
+const termRadios = document.querySelectorAll('input[name="challenge_term"]'); 
+const dayCheckboxes = document.querySelectorAll('input[name="auth_days"]'); 
+const peopleSelect = document.getElementById('people');
+const displayDays = document.getElementById('display-days');
+const displayEntryFee = document.getElementById('display-entry-fee');
+const displayTotalPrize = document.getElementById('display-total-prize');
+const submitBtn = document.getElementById('submit-btn');
+
+// 3. 화면의 포인트를 계산
+function updatePoints() {
+    if (selectedDays === 0) return; 
+    
+    const entryFee = selectedDays * 100; 
+    //총상금=입장료*인원수+500
+    let totalPrize = 0;
+    if (selectedPeople > 0) {
+        totalPrize = (entryFee * selectedPeople) + 500; 
+    }
+
+    displayDays.innerText = `${selectedDays}일 챌린지 입장료`;
+    displayEntryFee.innerText = `${entryFee}pt`;
+    
+    if (totalPrize > 0) {
+        displayTotalPrize.innerText = `최대 ${totalPrize}pt`;
+    } else {
+        displayTotalPrize.innerText = `최대 nnnpt`;
+    }
+}
+
+// 5. 라디오 버튼 변경 이벤트 
+termRadios.forEach(radio => {
+    
+    radio.addEventListener('change', (e) => {
+
+        selectedDays = parseInt(e.target.value);
+        updatePoints(); 
+    });
+});
+
+// 6. 인원 수 드롭다운 변경 이벤트
+peopleSelect.addEventListener('change', (e) => {
+    selectedPeople = parseInt(e.target.value);
+    updatePoints(); 
+});
+
+// 7. 버튼 어쩌고
+function checkAllFilled() {
+    // 조건 1: 팟 이름+
+    const isNameFilled = routineInput.value.trim().length > 0;
+    
+    // 조건 2: 챌린지 기간+
+    const isTermSelected = selectedDays > 0;
+    
+    // 조건 3: 인증 요일을 최소 1개+
+    let isDayChecked = false;
+    dayCheckboxes.forEach(cb => {
+        if (cb.checked) isDayChecked = true;
+    });
+    
+    // 조건 4: 인원 수+
+    const isPeopleSelected = selectedPeople > 0;
+
+   
+    if (isNameFilled && isTermSelected && isDayChecked && isPeopleSelected) {
+        submitBtn.classList.add('active'); 
+        submitBtn.disabled = false;        
+    } else {
+        submitBtn.classList.remove('active');
+        submitBtn.disabled = true;
+    }
+}
+
+// 7.검사 함수 실행
+
+// 팟 이름 타자 칠 때마다 검사
+routineInput.addEventListener('input', checkAllFilled);
+
+// 인증 요일 누를 때마다 검사
+dayCheckboxes.forEach(cb => {
+    cb.addEventListener('change', checkAllFilled);
+});
+
+// 챌린지 기간 누를 때마다 계산 & 검사
+termRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        selectedDays = parseInt(e.target.value);
+        updatePoints(); 
+        checkAllFilled(); 
+    });
+});
+
+// 인원 수 선택할 때마다 계산 & 검사
+peopleSelect.addEventListener('change', (e) => {
+    selectedPeople = parseInt(e.target.value);
+    updatePoints(); 
+    checkAllFilled();
+});
+</script>
