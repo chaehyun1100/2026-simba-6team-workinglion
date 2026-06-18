@@ -1,0 +1,64 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.input-wrapper:focus-within{
+    border-radius: 20px;
+border: 1px solid #000;
+background: #FFF;
+}
+.block:focus-within label{
+    color: #000;
+}
+
+.block .bottom-text {
+    display: block !important;
+    opacity: 0;
+    margin-top: 6px;
+    margin-left: 10px;
+    height: 21px;
+
+    font-family: Inter;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: -0.15px;
+}
+
+
+.input-wrapper:focus-within:not(.is-typing) {
+    border-color: #000000;
+}
+
+.input-wrapper.is-typing {
+    
+    border-color: #fe0000;
+}
+
+.input-wrapper.is-success {
+    border-color: #0075FF;
+}
+
+.input-wrapper.is-typing ~ .bottom-text {
+    opacity: 1;
+    color: #fe0000;
+}
+
+.input-wrapper.is-success ~ .bottom-text {
+    opacity: 1;
+    color: #0075ff;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 40px #ffffff inset;
+    -webkit-text-fill-color: #000000;
+}
+button:active{
+    transform: scale(0.98);
+}
