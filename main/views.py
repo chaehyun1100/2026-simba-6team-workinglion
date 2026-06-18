@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import *
 
 # Create your views here.
 def onboarding(request):
@@ -10,8 +11,30 @@ def signup_login(request):
 def dashboard(request):
     return render(request, 'pages/dashboard.html')
 
-def create_pot(request):
-    return render(request, 'pages/create_pot.html')
-
 def join_pot(request):
     return render(request, 'pages/join_pot.html')
+
+def new_pot(request):
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
+    
+    user_profile = request.user.profile
+    return render(request, 'pages/new_pot.html', {'user_profile': user_profile})
+
+
+def create(request):
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
+
+    new_pot = Pot()
+
+    new_pot.pot_name = request.POST['pot_name']
+    new_pot.host = request.user
+    new_pot.days = request.POST['days']
+    new_pot.fee = request.POST['fee']
+    new_pot.total_prize = request.POST['total_prize']
+    new_pot.pot_people = request.POST['pot_people']
+
+    new_pot.save()
+
+    return redirect('main:dashboard')
