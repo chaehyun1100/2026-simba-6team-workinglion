@@ -8,6 +8,7 @@ urlpatterns = [
     path('', onboarding, name='onboarding'),
     path('signup_login/', signup_login, name='signup_login'),
     path('dashboard/', dashboard, name='dashboard'),
+    path('pot/<int:pot_id>/', pot_detail, name='pot_detail'),
     path('pot_choice/', pot_choice, name='pot_choice'),
     path('join_pot/', join_pot, name='join_pot'),
     path('join_pot/<int:pot_id>', join_pot, name='join_pot'),
