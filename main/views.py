@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
+import datetime
 import random
 
 # Create your views here.
@@ -14,6 +15,67 @@ def dashboard(request):
         return redirect('accounts:login')
     pots = Pot.objects.filter(participants=request.user)
     return render(request, 'pages/dashboard.html', {'pots': pots})
+
+
+def pot_detail(request, pot_id):
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
+
+    pot = get_object_or_404(Pot, pk=pot_id)
+
+    if not pot.participants.filter(id=request.user.id).exists():
+        return redirect('main:dashboard')
+
+    today = datetime.date.today()
+
+    if request.method == 'POST':
+        image = request.FILES.get('image')
+        if image:
+            if not Proof.objects.filter(
+                pot=pot,
+                user=request.user,
+                auth_date=today,
+            ).exists():
+                proof = Proof(
+                    pot=pot,
+                    user=request.user,
+                    image=image,
+                )
+                proof.save()
+        return redirect('main:pot_detail', pot_id=pot.id)
+
+    participants = pot.participants.all()
+    participant_infos = []
+    my_today_proof = None
+
+    for participant in participants:
+        proof = None
+        if Proof.objects.filter(
+            pot=pot,
+            user=participant,
+            auth_date=today,
+        ).exists():
+            proof = Proof.objects.get(
+                pot=pot,
+                user=participant,
+                auth_date=today,
+            )
+
+        if participant == request.user:
+            my_today_proof = proof
+
+        participant_infos.append({
+            'user': participant,
+            'proof': proof,
+        })
+
+    context = {
+        'pot': pot,
+        'participants': participants,
+        'participant_infos': participant_infos,
+        'my_today_proof': my_today_proof,
+    }
+    return render(request, 'pages/pot_detail.html', context)
 
 def pot_choice(request):
     return render(request, 'pages/pot-choice.html')

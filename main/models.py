@@ -10,4 +10,10 @@ class Pot(models.Model):
     pot_people = models.IntegerField()
     participants = models.ManyToManyField(User, related_name='join_pots', blank=True)
     pot_code = models.CharField(max_length=6, null=True, blank=True)
-    
+
+
+class Proof(models.Model):
+    pot = models.ForeignKey(Pot, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='proof_images/')
+    auth_date = models.DateField(auto_now_add=True)

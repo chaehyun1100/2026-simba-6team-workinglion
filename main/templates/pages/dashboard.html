@@ -105,12 +105,14 @@
                     <p class="list-title">pot - list</p>
                     <div class="box-list">
                         {% for pot in pots %}
+                        <a href="{% url 'main:pot_detail' pot.id %}">
                         <div class="box">
                             <p>{{ pot.pot_name }}</p>
                             <p>참여 인원 {{ pot.participants.count }} / {{ pot.pot_people }}명</p>
                             <p>{{ pot.days }}일</p>
                             <p>입장료 {{ pot.fee }}pt</p>
                         </div>
+                        </a>
                         {% empty %}
                         <p>참여 중인 팟이 없습니다.</p>
                         {% endfor %}

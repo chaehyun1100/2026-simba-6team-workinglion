@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ pot.pot_name }}</title>
+</head>
+<body>
+    <main>
+        <h1>{{ pot.pot_name }}</h1>
+        <p>기간: {{ pot.days }}일</p>
+        <p>인원: {{ pot.participants.count }} / {{ pot.pot_people }}명</p>
+        <p>총상금: {{ pot.total_prize }}pt</p>
+
+        {% if my_today_proof %}
+        <p>오늘 인증 완료</p>
+        <img src="{{ my_today_proof.image.url }}" alt="내 인증사진">
+        {% else %}
+        <p>오늘 미인증</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="image" required>
+            <button type="submit">인증사진 업로드</button>
+        </form>
+        {% endif %}
+
+        <h2>참가자 인증 현황</h2>
+        {% for info in participant_infos %}
+        <div>
+            <p>{{ info.user.profile.nickname }}</p>
+            {% if info.proof %}
+            <img src="{{ info.proof.image.url }}" alt="인증사진">
+            {% else %}
+            <p>아직 인증되지 않았어요</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </main>
+</body>
+</html>
