@@ -17,4 +17,4 @@ def mypage(request, id):
         'profile': profile,
     }
 
-    return render(request, 'users/mypage.html', context)
+    return render(request, 'pages/my_page.html', context)
