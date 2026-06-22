@@ -61,13 +61,13 @@
                         <div class="vote-current">
                             <div class="vote-title">
                                 <p class="maintitle">현재 투표 현황</p>
-                                <p class="subtitle">n명 중 n명 응답</p> <!--하드코딩-->
+                                <p class="subtitle">{{ total_participants }}명 중 {{ responded_count }}명 응답</p> 
                             </div>
                             <div class="grad-box">
                                 <div class="gradation"></div>
                                 <div class="grad-text">
-                                    <p class="agree">인정 n명 (nn%)</p> <!--하드코딩-->
-                                    <p class="disagree">미인정 n명 (nn%)</p> <!--하드코딩-->
+                                    <p class="agree">인정 {{ agree_count }}명 ({{ agree_pct }}%)</p> 
+                                    <p class="disagree">미인정 {{ disagree_count }}명 ({{ disagree_pct }}%)</p> 
                                 </div>
                             </div>
                         </div>

@@ -28,6 +28,10 @@ def pot_detail(request, pot_id):
 
     today = datetime.date.today()
 
+    end_date = pot.start_date + datetime.timedelta(days=pot.days)
+    if today > end_date:
+        return redirect('main:complete', pot_id=pot.id)
+
     if request.method == 'POST':
         
         image = request.FILES.get('image')
@@ -302,9 +306,99 @@ def after_photo(request, pot_id):
     if not my_today_proof:
         return redirect('main:before_photo', pot_id=pot.id)
 
+    votes = my_today_proof.votes.all()
+    total_participants = pot.participants.count()
+    responded_count = votes.count()
+    
+    agree_count = votes.filter(is_approved=True).count()
+    disagree_count = votes.filter(is_approved=False).count()
+    
+    agree_pct = int((agree_count / responded_count) * 100) if responded_count > 0 else 0
+    disagree_pct = 100 - agree_pct
+
     context = {
         'pot': pot,
         'now': today,
         'my_today_proof': my_today_proof,
+        'total_participants': total_participants,
+        'responded_count': responded_count,
+        'agree_count': agree_count,
+        'agree_pct': agree_pct,
+        'disagree_count': disagree_count,
+        'disagree_pct': disagree_pct,
     }
     return render(request, 'pages/after_photo.html', context)
+
+def photo_vote(request, pot_id, target_user_id):
+    pot = get_object_or_404(Pot, pk=pot_id)
+    target_user = get_object_or_404(User, pk=target_user_id)
+    today = datetime.date.today()
+
+    proof = Proof.objects.filter(pot=pot, user=target_user, auth_date=today).first()
+
+    if request.method == 'POST':
+        vote_action = request.POST.get('vote')
+        if proof and vote_action:
+            vote, created = Vote.objects.get_or_create(proof=proof, voter=request.user, defaults={'is_approved': True})
+            vote.is_approved = (vote_action == 'approve')
+            vote.save()
+
+            total_people = pot.participants.count()
+            reject_count = proof.votes.filter(is_approved=False).count()
+            
+            if reject_count >= (total_people / 2):
+                proof.is_valid = False
+            else:
+                proof.is_valid = True
+            proof.save()
+
+        return redirect('main:pot_detail', pot_id=pot.id)
+
+    context = {
+        'pot': pot,
+        'target_user': target_user,
+        'proof': proof,
+    }
+    return render(request, 'pages/photo_vote.html', context)
+
+
+def complete(request, pot_id):
+    pot = get_object_or_404(Pot, pk=pot_id)
+    
+    if not pot.is_completed:
+        participants = pot.participants.all()
+        rankings = []
+        
+        for p in participants:
+            valid_count = Proof.objects.filter(pot=pot, user=p, is_valid=True).count()
+            rankings.append({'user': p, 'count': valid_count})
+        
+        rankings.sort(key=lambda x: x['count'], reverse=True)
+        
+        if rankings:
+            max_count = rankings[0]['count']
+            winners = [r for r in rankings if r['count'] == max_count]
+            
+            if winners:
+                prize_per_winner = pot.total_prize // len(winners)
+                for w in winners:
+                    profile = w['user'].profile
+                    profile.point += prize_per_winner
+                    profile.accumulated_point += prize_per_winner
+                    profile.save()
+                
+        pot.is_completed = True
+        pot.save()
+
+    participants = pot.participants.all()
+    final_rank = []
+    for p in participants:
+        valid_count = Proof.objects.filter(pot=pot, user=p, is_valid=True).count()
+        final_rank.append({'user': p, 'count': valid_count})
+    final_rank.sort(key=lambda x: x['count'], reverse=True)
+
+    context = {
+        'pot': pot,
+        'final_rank': final_rank,
+    }
+    return render(request, 'pages/complete.html', context)

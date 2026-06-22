@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
+import datetime
 
 class Pot(models.Model):
     host = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
@@ -11,6 +12,8 @@ class Pot(models.Model):
     pot_people = models.IntegerField()
     participants = models.ManyToManyField(User, related_name='join_pots', blank=True)
     pot_code = models.CharField(max_length=6, null=True, blank=True)
+    start_date = models.DateField(default=datetime.date.today)
+    is_completed = models.BooleanField(default=False)
 
 
 class Proof(models.Model):
@@ -18,7 +21,8 @@ class Proof(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='proof_images/')
     auth_date = models.DateField(auto_now_add=True)
-    
+    is_valid = models.BooleanField(default=True)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
@@ -36,3 +40,8 @@ class PotAvatar(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     color = models.CharField(max_length=20)
     item = models.CharField(max_length=20, null=True, blank=True)
+
+class Vote(models.Model):
+    proof = models.ForeignKey(Proof, on_delete=models.CASCADE, related_name='votes')
+    voter = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_approved = models.BooleanField()
