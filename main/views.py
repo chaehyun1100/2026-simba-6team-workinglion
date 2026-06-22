@@ -72,6 +72,7 @@ def dashboard(request):
     for pot in pots:
         pot.d_day = max((get_end_date(pot) - today).days, 0)
         pot.is_ended = is_pot_ended(pot, today)
+        pot.is_authenticated_today = Proof.objects.filter(pot=pot, user=request.user, auth_date=today).exists()
 
     return render(request, 'pages/dashboard.html', {'pots': pots})
 def pot_detail(request, pot_id):
@@ -383,13 +384,13 @@ def before_photo(request, pot_id):
             return render(request, 'pages/before_photo.html', context)
 
         if my_today_proof:
-            return redirect('main:pot_detail', pot_id=pot.id)
+            return redirect('main:after_photo', pot_id=pot.id)
 
         image = request.FILES.get('image')
         if image:
             proof = Proof(pot=pot, user=request.user, image=image)
             proof.save()
-            return redirect('main:pot_detail', pot_id=pot.id)
+            return redirect('main:after_photo', pot_id=pot.id)
 
         context = {
             'pot': pot,
@@ -427,7 +428,7 @@ def after_photo(request, pot_id):
         return redirect('main:before_photo', pot_id=pot.id)
 
     votes = my_today_proof.votes.all()
-    total_participants = pot.participants.count()
+    total_participants = pot.participants.count() - 1
     responded_count = votes.count()
     agree_count = votes.filter(is_approved=True).count()
     disagree_count = votes.filter(is_approved=False).count()
