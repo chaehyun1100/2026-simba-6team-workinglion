@@ -6,7 +6,8 @@ body{
     display:flex;
     justify-content: center;
     background: linear-gradient(180deg, var(--y0, #FFF7D1) 0%, #FFF 236.43%);
-    
+    width: 99%;
+    min-height: 100dvh;
 }
 
 .main{
