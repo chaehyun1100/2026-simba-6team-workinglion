@@ -54,14 +54,18 @@
                         <form action="{% url 'main:photo_vote' pot.id target_user.id %}" method="post">
                             {% csrf_token %}
                             <div class="button-box">
-                                <button class="agree-btn" type="submit" name="vote" value="approve">
-                                    <img src="{% static 'main/img/agree.png' %}" class="agree-icon" alt="인정">
-                                    <p class="agree-text">인정해요</p>
-                                </button>
-                                <button class="disagree-btn" type="submit" name="vote" value="reject">
-                                    <img src="{% static 'main/img/agree.png' %}" class="disagree-icon" alt="미인정">
-                                    <p class="disagree-text">인정못해요</p>
-                                </button>
+                                <div class="box-body1">
+                                    <button class="agree-btn" type="submit" name="vote" value="approve">
+                                        <img src="{% static 'main/img/agree.png' %}" class="agree-icon" alt="인정">
+                                        <p class="agree-text">인정해요</p>
+                                    </button>
+                                </div>
+                                <div class="box-body2">
+                                    <button class="disagree-btn" type="submit" name="vote" value="reject">
+                                        <img src="{% static 'main/img/agree.png' %}" class="disagree-icon" alt="미인정">
+                                        <p class="disagree-text">인정못해요</p>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
