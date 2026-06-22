@@ -43,7 +43,13 @@
                             </div>
                             <div class="box-right">
                                 <button class="pot-btn">
-                                    <p class="btn-text2">팟 입장</p> 
+                                    <p class="btn-text2">
+                                        {% if pot.is_ended or pot.is_completed %}
+                                            팟 종료 | 결과보기
+                                        {% else %}
+                                            팟 입장
+                                        {% endif %}
+                                    </p> 
                                 </button>
                             </div>
                         </a>
