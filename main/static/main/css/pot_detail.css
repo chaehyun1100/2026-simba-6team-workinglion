@@ -117,7 +117,7 @@ body{
 
 .member-container{
     display:grid;
-    grid-template-columns:auto auto;
+    grid-template-columns: 130px 130px;
     column-gap:59px;
     row-gap: 21px;
 }
