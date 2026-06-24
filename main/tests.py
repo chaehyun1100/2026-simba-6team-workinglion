@@ -256,3 +256,57 @@ class CoreFlowTests(TestCase):
         self.client.get(complete_url)
         self.member.profile.refresh_from_db()
         self.assertEqual(self.member.profile.point, 4700)
+
+    def test_completion_pays_successful_users_by_rank_weight(self):
+        today = datetime.date.today()
+        start_date = today - datetime.timedelta(days=20)
+        users = []
+        proof_counts = [14, 13, 12, 8, 3]
+
+        for index in range(5):
+            user = User.objects.create_user(
+                username='rank' + str(index) + '@test.com',
+                password='Password1',
+            )
+            Profile.objects.create(user=user, nickname='rank' + str(index), point=0)
+            users.append(user)
+
+        pot = Pot.objects.create(
+            host=users[0],
+            pot_name='rank pot',
+            days=14,
+            auth_days='mon,tue,wed,thu,fri,sat,sun',
+            fee=1400,
+            total_prize=7500,
+            pot_people=5,
+            pot_code='RANK55',
+            start_date=start_date,
+        )
+        pot.participants.add(users[0], users[1], users[2], users[3], users[4])
+
+        for user_index in range(len(users)):
+            for day_number in range(proof_counts[user_index]):
+                proof = Proof.objects.create(
+                    pot=pot,
+                    user=users[user_index],
+                    image=self.make_image('rank-' + str(user_index) + '-' + str(day_number) + '.png'),
+                )
+                proof_date = start_date + datetime.timedelta(days=day_number)
+                Proof.objects.filter(pk=proof.pk).update(auth_date=proof_date)
+
+        self.client.force_login(users[0])
+        response = self.client.get(reverse('main:complete', args=[pot.id]))
+        self.assertEqual(response.status_code, 200)
+
+        for user in users:
+            user.profile.refresh_from_db()
+
+        self.assertEqual(users[0].profile.point, 3750)
+        self.assertEqual(users[1].profile.point, 2500)
+        self.assertEqual(users[2].profile.point, 1250)
+        self.assertEqual(users[3].profile.point, 0)
+        self.assertEqual(users[4].profile.point, 0)
+
+        self.client.get(reverse('main:complete', args=[pot.id]))
+        users[0].profile.refresh_from_db()
+        self.assertEqual(users[0].profile.point, 3750)

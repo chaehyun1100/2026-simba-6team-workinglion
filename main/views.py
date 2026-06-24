@@ -536,14 +536,11 @@ def complete(request, pot_id):
     required_count = get_required_auth_count(pot)
     success_count = (required_count * 80 + 99) // 100
     final_rank = []
-    successful_users = []
 
     for participant in participants:
         valid_count = get_valid_proof_count(pot, participant)
         achievement_rate = int((valid_count / required_count) * 100) if required_count > 0 else 0
         is_success = required_count > 0 and valid_count >= success_count
-        if is_success:
-            successful_users.append(participant)
 
         final_rank.append({
             'user': participant,
@@ -565,31 +562,59 @@ def complete(request, pot_id):
         info['rank'] = current_rank
 
     pot.total_prize = (pot.fee * pot.participants.count()) + 500
-    prize_per_user = 0
-    if successful_users:
-        prize_per_user = pot.total_prize // len(successful_users)
+    successful_infos = []
+    for info in final_rank:
+        if info['is_success']:
+            successful_infos.append(info)
+
+    total_weight = 0
+    position_weights = []
+    for index in range(len(successful_infos)):
+        weight = len(successful_infos) - index
+        position_weights.append(weight)
+        total_weight += weight
+
+    remaining_prize = pot.total_prize
+    index = 0
+    while index < len(successful_infos):
+        current_count = successful_infos[index]['count']
+        group = []
+        group_weight = 0
+
+        while index < len(successful_infos) and successful_infos[index]['count'] == current_count:
+            group.append(successful_infos[index])
+            group_weight += position_weights[index]
+            index += 1
+
+        if index == len(successful_infos):
+            group_prize = remaining_prize
+        else:
+            group_prize = (pot.total_prize * group_weight) // total_weight
+            remaining_prize -= group_prize
+
+        prize = group_prize // len(group)
+        extra_prize = group_prize % len(group)
+        for group_index in range(len(group)):
+            group[group_index]['prize'] = prize
+            if group_index < extra_prize:
+                group[group_index]['prize'] += 1
 
     if not pot.is_completed:
-        for participant in successful_users:
-            profile = participant.profile
-            profile.point += prize_per_user
-            profile.accumulated_point += prize_per_user
+        for info in successful_infos:
+            profile = info['user'].profile
+            profile.point += info['prize']
+            profile.accumulated_point += info['prize']
             profile.save()
 
         pot.is_completed = True
         pot.save()
-
-    for info in final_rank:
-        if info['is_success']:
-            info['prize'] = prize_per_user
 
     context = {
         'pot': pot,
         'final_rank': final_rank,
         'required_count': required_count,
         'success_count': success_count,
-        'prize_per_user': prize_per_user,
-        'successful_count': len(successful_users),
+        'successful_count': len(successful_infos),
         'participant_count': pot.participants.count(),
         'participant_prize': pot.fee * pot.participants.count(),
     }
